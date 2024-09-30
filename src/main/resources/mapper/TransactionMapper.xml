@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="TransactionMapper">
+<mapper namespace="dan.example.dan_financial_book.transaction.mapper.TransactionMapper">
 
-    <parameterMap id="TransactionParam" type="dan.example.dan_financial_book.transaction.dto.TransactionDto" />
+    <parameterMap id="TransactionParam" type="dan.example.dan_financial_book.transaction.dao.TransactionDao" />
 
-    <resultMap id="TransactionResult" type="dan.example.dan_financial_book.transaction.dao.TransactionDao">
-        <result column="tr_id" property="id" jdbcType="BIGINT" javaType="long"/>
-        <result column="type" property="id" jdbcType="VARCHAR" javaType="String"/>
-        <result column="amount" property="id" jdbcType="INTEGER" javaType="String"/>
-        <result column="content" property="id" jdbcType="VARCHAR" javaType="String"/>
-        <result column="category" property="id" jdbcType="VARCHAR" javaType="String"/>
-        <result column="date" property="id" jdbcType="DATE" javaType="String"/>
-        <result column="crt_time" property="id" jdbcType="DATE" javaType="String"/>
-        <result column="upt_time" property="id" jdbcType="DATE" javaType="String"/>
+    <resultMap type="dan.example.dan_financial_book.transaction.dao.TransactionDao" id="TransactionResult" >
+        <result column="tr_id" property="tr_id"/>
+        <result column="tr_type" property="tr_type"/>
+        <result column="category" property="category"/>
+        <result column="amount" property="amount"/>
+        <result column="contents" property="contents"/>
+        <result column="memo" property="memo"/>
+        <result column="tr_date" property="tr_date"/>
+        <result column="crt_time" property="crt_time"/>
+        <result column="upt_time" property="upt_time"/>
     </resultMap>
 
-    <select id="findTransactionByDate" parameterType="java.lang.String" resultType="TransactionResult">
-        SELECT * FROM t_transaction WHERE date = #{date}
+    <select id="findTransactionByDate" parameterType="java.lang.String" resultMap="TransactionResult">
+        SELECT *
+        FROM t_transaction tt
+        WHERE 1=1
+        AND tt.tr_date = TO_DATE(#{date}, 'YYYY-MM-DD')
     </select>
 
-    <insert id="addTransaction" parameterType="TransactionParam">
-        <selectKey keyProperty="id" resultType="long" order="BEFORE">
-            SELECT nextval('seq_transaction_id');
+    <insert id="addTransaction" parameterMap="TransactionParam">
+        <selectKey keyProperty="tr_id" resultType="java.lang.Long" order="BEFORE">
+            SELECT nextval('seq_transaction_id') as tr_id;
         </selectKey>
 
-        insert into t_transaction (tr_id, type, amount, content, category, date, crt_time, upt_time)
-        values (#{id}, #{type}, #{amount}, #{content}, #{category}, #{date}, now(), now())
+        insert into t_transaction (tr_id, tr_type, category, amount, contents, tr_date, crt_time, upt_time)
+        values (#{tr_id}, #{tr_type}, #{category}, #{amount}, #{contents}, now(), now(), now())
 
     </insert>
 

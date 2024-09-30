@@ -1,5 +1,6 @@
 package dan.example.dan_financial_book.transaction.dao;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,13 +9,15 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Builder
 public class TransactionDao {
     protected Long tr_id;
-    protected String type;
-    protected int amount;
-    protected String content;
+    protected String tr_type;
     protected String category;
-    protected String date;
+    protected int amount;
+    protected String contents;
+    protected String memo;
+    protected String tr_date;
     protected String crt_time;
     protected String upt_time;
 }

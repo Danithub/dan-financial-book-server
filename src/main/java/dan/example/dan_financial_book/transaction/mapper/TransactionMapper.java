@@ -1,11 +1,13 @@
 package dan.example.dan_financial_book.transaction.mapper;
 
-import dan.example.dan_financial_book.transaction.dto.TransactionDto;
+import dan.example.dan_financial_book.transaction.dao.TransactionDao;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 @Mapper
 public interface TransactionMapper {
-    public void findTransactionByDate(String date);
+    public List<TransactionDao> findTransactionByDate(String date);
 
-    public void addTransaction(TransactionDto transaction);
+    public int addTransaction(TransactionDao transaction);
 }

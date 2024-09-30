@@ -1,14 +1,13 @@
 package dan.example.dan_financial_book.transaction.dto;
 
 import dan.example.dan_financial_book.common.TransactionType;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 // 거래 정보 DTO
 @Getter
 @Setter
 @ToString
+@Builder
 public class TransactionDto {
     // id
     protected Long id;
@@ -24,8 +23,4 @@ public class TransactionDto {
     protected String category;
     // 메모
     protected String memo;
-
-    public TransactionDto(Long id) {
-        this.id = id;
-    }
 }
