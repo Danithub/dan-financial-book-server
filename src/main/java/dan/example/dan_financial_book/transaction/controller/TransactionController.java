@@ -20,6 +20,12 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final ResponseService responseService;
 
+    @RequestMapping("test")
+    @ResponseBody
+    public ResponseEntity<Object> checkConnection(){
+        return responseService.toResponseEntity("200", "OK");
+    }
+
     @RequestMapping("add")
     @ResponseBody
     public ResponseEntity<Integer> addTransaction(HttpServletRequest request){
