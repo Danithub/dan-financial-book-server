@@ -22,5 +22,5 @@ jobs:
           git pull
           mvn compile
           mvn package -Dmaven.test.skip=true
-          mv ./target/dan-financtial-book-server-0.0.1-SNAPSHOT.war /var/lib/tomcat10/webapps/ROOT.war
-          sudo systemctl restart tomcat10
+          mv ./target/dan-financial-book-0.0.1-SNAPSHOT.war /var/lib/tomcat10/webapps/ROOT.war
+          sudo systemctl restart tomcat10.service
