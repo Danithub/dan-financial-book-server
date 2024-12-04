@@ -1,0 +1,26 @@
+name: Deploy Danksalad Backend to Amazon EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: ssh to ec2
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.REMOTE_IP }}
+        port: ${{ secrets.REMOTE_SSH_PORT }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.REMOTE_PRIVATE_KEY }}
+        script: |
+          cd dan-financial-book-server
+          git pull
+          mvn compile
+          mvn package -Dmaven.test.skip=true
+          mv ./target/dan-financtial-book-server-0.0.1-SNAPSHOT.war /var/lib/tomcat10/webapps/ROOT.war
+          sudo systemctl restart tomcat10
