@@ -19,6 +19,7 @@ jobs:
         key: ${{ secrets.REMOTE_PRIVATE_KEY }}
         script: |
           cd dan-financial-book-server
+          git fetch
           git pull
           mvn compile
           mvn package -Dmaven.test.skip=true
