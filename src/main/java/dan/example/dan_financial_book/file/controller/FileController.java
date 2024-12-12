@@ -27,7 +27,7 @@ public class FileController {
 
     @PostMapping("upload")
     @ResponseBody
-    public ResponseEntity<Object> upload(@RequestPart List<MultipartFile> files, @RequestPart List<String> fileList) throws Exception {
+    public ResponseEntity<Object> upload(@RequestPart List<MultipartFile> files, @RequestParam List<String> fileList) throws Exception {
         fileService.fileUpload(UploadFileDto.builder().files(files).fileList(fileList).build());
         return responseService.toResponseEntity("200", "OK");
     }
