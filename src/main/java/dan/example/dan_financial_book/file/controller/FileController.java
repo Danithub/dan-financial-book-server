@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Controller
+@RequestMapping(value = "/fil")
 @RequiredArgsConstructor
 @Slf4j
 public class FileController {

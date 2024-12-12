@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Controller
+@RequestMapping(value = "/txn")
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
