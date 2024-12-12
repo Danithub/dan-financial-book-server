@@ -43,7 +43,6 @@ public class FileService {
                 objectMetadata.setContentType(dto.getFiles().get(i).getContentType());
                 objectMetadata.setContentLength(dto.getFiles().get(i).getSize());
                 objectMetadata.setHeader("filename", dto.getFiles().get(i).getOriginalFilename());
-                log.info("key: {}", "files/" + today + "/" + dto.getFileList().get(i));
                 amazonS3.putObject(new PutObjectRequest(bucket, "files/" + today + "/" + dto.getFileList().get(i), dto.getFiles().get(i).getInputStream(), objectMetadata));
             }
         } else {
