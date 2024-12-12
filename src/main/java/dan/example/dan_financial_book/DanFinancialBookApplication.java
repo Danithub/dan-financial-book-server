@@ -19,3 +19,10 @@ public class DanFinancialBookApplication extends SpringBootServletInitializer {
         return builder.sources(DanFinancialBookApplication.class);
     }
 }
+// 로컬 테스트용
+//public class DanFinancialBookApplication {
+//
+//    public static void main(String[] args) {
+//        SpringApplication.run(DanFinancialBookApplication.class, args);
+//    }
+//}
