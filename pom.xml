@@ -69,11 +69,11 @@
 			<version>5.0.0</version>
 		</dependency>
 		<!-- WAR 패키징을 위한 Dependency 추가(로컬 실행시 주석처리) -->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--			<scope>provided</scope>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- AWS -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
