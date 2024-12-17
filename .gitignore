@@ -34,3 +34,6 @@ build/
 
 ### AWS ###
 /src/main/resources/application-aws.properties
+
+### 공공 데이터 포탈 ###
+/src/main/resources/application-openapi.properties
