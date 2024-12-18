@@ -2,7 +2,10 @@ package dan.example.dan_financial_book.transaction.service;
 
 import dan.example.dan_financial_book.common.TransactionType;
 import dan.example.dan_financial_book.transaction.dao.TransactionDao;
+import dan.example.dan_financial_book.transaction.dao.TxnPeriodDao;
 import dan.example.dan_financial_book.transaction.dto.TransactionDto;
+import dan.example.dan_financial_book.transaction.dto.TxnPeriodRequestDto;
+import dan.example.dan_financial_book.transaction.dto.TxnPeriodResponseDto;
 import dan.example.dan_financial_book.transaction.mapper.TransactionMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +25,9 @@ public class TransactionService {
         List<TransactionDto> trList = new ArrayList<>();
         for (TransactionDao dao : list) {
             trList.add(TransactionDto.builder()
-                    .id(dao.getTr_id())
-                    .type(Objects.equals(dao.getTr_type(), "0") ? TransactionType.EXPENSE : TransactionType.INCOME)
-                    .date(dao.getTr_date())
+                    .id(dao.getTrId())
+                    .type(Objects.equals(dao.getTrType(), "0") ? TransactionType.EXPENSE : TransactionType.INCOME)
+                    .date(dao.getTrDate())
                     .amount(dao.getAmount())
                     .content(dao.getContents())
                     .category(dao.getCategory())
@@ -47,7 +50,7 @@ public class TransactionService {
         String content = request.getParameter("content");
 
         TransactionDao dao = TransactionDao.builder()
-                .tr_type(type)
+                .trType(type)
                 .amount(Integer.parseInt(amount))
                 .category(category)
                 .contents(content)
@@ -62,5 +65,22 @@ public class TransactionService {
 
     void deleteTransaction(Long id){
 
+    }
+
+    public TxnPeriodResponseDto findTxnForPeriod(TxnPeriodRequestDto dto) {
+        List<TxnPeriodDao> list = transactionMapper.findTxnForPeriod(dto);
+
+        List<TxnPeriodResponseDto.Day> days = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            TxnPeriodDao element = list.get(i);
+            days.add(TxnPeriodResponseDto.Day.builder()
+                    .date(element.getTrDate())
+                    .expense(element.getExpense())
+                    .income(element.getIncome())
+                    .transfer(element.getTransfer())
+                    .build());
+        }
+
+        return TxnPeriodResponseDto.builder().days(days).build();
     }
 }
