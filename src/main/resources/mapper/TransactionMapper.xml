@@ -51,7 +51,7 @@
              GROUP BY tr_date, tr_type
              ORDER BY tr_date, tr_type
         )
-        SELECT s.tr_date
+        SELECT to_char(s.tr_date, 'YYYY-MM-DD')
                , max(CASE WHEN s.tr_type='0' THEN amount END) AS expense
                , max(CASE WHEN s.tr_type='1' THEN amount END) AS income
                , max(CASE WHEN s.tr_type='2' THEN amount END) AS transfer
