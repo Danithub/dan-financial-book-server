@@ -3,18 +3,26 @@
 <mapper namespace="dan.example.dan_financial_book.transaction.mapper.TransactionMapper">
 
     <parameterMap id="TransactionParam" type="dan.example.dan_financial_book.transaction.dao.TransactionDao" />
+    <parameterMap id="TxnPeriodParam" type="dan.example.dan_financial_book.transaction.dto.TxnPeriodRequestDto" />
 
     <resultMap type="dan.example.dan_financial_book.transaction.dao.TransactionDao" id="TransactionResult" >
-        <result column="tr_id" property="tr_id"/>
-        <result column="tr_type" property="tr_type"/>
+        <result column="tr_id" property="trId"/>
+        <result column="tr_type" property="trType"/>
         <result column="category" property="category"/>
         <result column="amount" property="amount"/>
         <result column="contents" property="contents"/>
         <result column="memo" property="memo"/>
-        <result column="tr_date" property="tr_date"/>
-        <result column="crt_time" property="crt_time"/>
-        <result column="upt_time" property="upt_time"/>
+        <result column="tr_date" property="trDate"/>
+        <result column="crt_time" property="crtTime"/>
+        <result column="upt_time" property="uptTime"/>
     </resultMap>
+    <resultMap id="TxnPeriodResult" type="dan.example.dan_financial_book.transaction.dao.TxnPeriodDao">
+        <result column="tr_type" property="trType"/>
+        <result column="tr_type_nm" property="trTypeNnm"/>
+        <result column="amount" property="amount"/>
+        <result column="tr_date" property="trDate"/>
+    </resultMap>
+
 
     <select id="findTransactionByDate" parameterType="java.lang.String" resultMap="TransactionResult">
         SELECT *
@@ -33,5 +41,23 @@
 
     </insert>
 
+    <select id="findTxnForPeriod" parameterMap="TxnPeriodParam" resultMap="TxnPeriodResult">
+        <!--  공통코드를 추가해서 하드코딩 없애기 -->
+        WITH SumPerType AS (
+            SELECT tr_date, tr_type, sum(amount) AS amount
+              FROM t_transaction
+             WHERE 1=1
+               AND tr_date BETWEEN to_date(#{stdt},'YYYYMMDD') AND to_date(#{eddt}, 'YYYYMMDD')
+             GROUP BY tr_date, tr_type
+             ORDER BY tr_date, tr_type
+        )
+        SELECT s.tr_date
+               , max(CASE WHEN s.tr_type='0' THEN amount END) AS expense
+               , max(CASE WHEN s.tr_type='1' THEN amount END) AS income
+               , max(CASE WHEN s.tr_type='2' THEN amount END) AS transfer
+          FROM SumPerType AS s
+         GROUP BY tr_date, tr_type
+
+    </select>
 
 </mapper>
