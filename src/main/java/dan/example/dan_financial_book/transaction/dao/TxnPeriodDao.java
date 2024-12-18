@@ -12,7 +12,7 @@ import lombok.ToString;
 @Builder
 public class TxnPeriodDao {
     private String trDate;
-    private String expense;
-    private String income;
-    private String transfer;
+    private int expense;
+    private int income;
+    private int transfer;
 }
