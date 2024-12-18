@@ -11,9 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +24,13 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final ResponseService responseService;
 
-    @RequestMapping("test")
+    @GetMapping("test")
     @ResponseBody
     public ResponseEntity<Object> checkConnection(){
         return responseService.toResponseEntity("200", "OK");
     }
 
-    @RequestMapping("add")
+    @GetMapping("add")
     @ResponseBody
     public ResponseEntity<Integer> addTransaction(HttpServletRequest request){
         int res = transactionService.addTransaction(request);
@@ -40,7 +38,7 @@ public class TransactionController {
         return responseService.toResponseEntity("200", res);
     }
 
-    @RequestMapping("find")
+    @GetMapping("find")
     @ResponseBody
     public ResponseEntity<List<TransactionDto>> findTransaction(HttpServletRequest request){
         String date = request.getParameter("date");
@@ -51,7 +49,7 @@ public class TransactionController {
         return responseService.toResponseEntity("200", result);
     }
 
-    @RequestMapping("find/period")
+    @PostMapping("find/period")
     @ResponseBody
     public ResponseEntity<TxnPeriodResponseDto> findTxnForPeriod(@RequestBody TxnPeriodRequestDto request){
         log.debug("findTxnForPeriod Req Dto========> {} ", request);
