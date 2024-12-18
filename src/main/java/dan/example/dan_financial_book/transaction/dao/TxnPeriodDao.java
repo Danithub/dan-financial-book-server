@@ -11,8 +11,8 @@ import lombok.ToString;
 @ToString
 @Builder
 public class TxnPeriodDao {
-    private String trType;
-    private String trTypeNnm;
-    private String amount;
     private String trDate;
+    private String expense;
+    private String income;
+    private String transfer;
 }

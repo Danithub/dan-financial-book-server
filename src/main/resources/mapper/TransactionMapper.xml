@@ -17,10 +17,10 @@
         <result column="upt_time" property="uptTime"/>
     </resultMap>
     <resultMap id="TxnPeriodResult" type="dan.example.dan_financial_book.transaction.dao.TxnPeriodDao">
-        <result column="tr_type" property="trType"/>
-        <result column="tr_type_nm" property="trTypeNnm"/>
-        <result column="amount" property="amount"/>
-        <result column="tr_date" property="trDate"/>
+        <result column="tr_date" property="trDatre"/>
+        <result column="expense" property="expense"/>
+        <result column="income" property="income"/>
+        <result column="transfer" property="transfer"/>
     </resultMap>
 
 
