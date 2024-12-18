@@ -11,13 +11,13 @@ import lombok.ToString;
 @ToString
 @Builder
 public class TransactionDao {
-    protected Long tr_id;
-    protected String tr_type;
+    protected Long trId;
+    protected String trType;
     protected String category;
     protected int amount;
     protected String contents;
     protected String memo;
-    protected String tr_date;
-    protected String crt_time;
-    protected String upt_time;
+    protected String trDate;
+    protected String crtTime;
+    protected String uptTime;
 }
