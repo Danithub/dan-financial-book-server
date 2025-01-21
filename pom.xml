@@ -12,7 +12,6 @@
 	<artifactId>dan-financial-book</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>dan-financial-book</name>
-	<packaging>war</packaging>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -68,12 +67,6 @@
 			<artifactId>jakarta.servlet-api</artifactId>
 			<version>5.0.0</version>
 		</dependency>
-		<!-- WAR 패키징을 위한 Dependency 추가(로컬 실행시 주석처리) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<!-- AWS -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -100,11 +93,6 @@
 						</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version>
 			</plugin>
 		</plugins>
 	</build>

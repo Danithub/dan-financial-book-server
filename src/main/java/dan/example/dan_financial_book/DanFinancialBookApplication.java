@@ -8,21 +8,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication(scanBasePackages = "dan.example.dan_financial_book")
 @MapperScan(basePackages = "dan.example.dan_financial_book")
-public class DanFinancialBookApplication extends SpringBootServletInitializer {
+public class DanFinancialBookApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DanFinancialBookApplication.class, args);
     }
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(DanFinancialBookApplication.class);
-    }
 }
-// 로컬 테스트용
-//public class DanFinancialBookApplication {
-//
-//    public static void main(String[] args) {
-//        SpringApplication.run(DanFinancialBookApplication.class, args);
-//    }
-//}
