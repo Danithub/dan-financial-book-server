@@ -1,36 +1,32 @@
-package dan.example.dan_financial_book.calendar.dao;
+package dan.example.dan_financial_book.calendar.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
-// 공공 OpenApi 한국천문연구원_특일 정보 Dao
+// 공공 OpenApi 한국천문연구원_특일 정보 Dto
 @Getter
 @Setter
-@ToString
-@Builder
-public class OpenApiHolidayDao {
+public class OpenApiHolidayDto {
     private Response response;
 
     @Getter
     @Setter
-    private static class Response {
+    public static class Response {
         private Header header;
         private Body body;
 
         @Getter
         @Setter
-        private static class Header {
+        public static class Header {
             private String resultCode;
             private String resultMsg;
         }
 
         @Getter
         @Setter
-        private static class Body {
+        public static class Body {
             private Items items;
             private Long numOfRows;
             private Long pageNo;
@@ -38,12 +34,12 @@ public class OpenApiHolidayDao {
 
             @Getter
             @Setter
-            private static class Items {
-                private List<Item> items;
+            public static class Items {
+                private List<Item> item;
 
                 @Getter
                 @Setter
-                private static class Item {
+                public static class Item {
                     private String dateKind;
                     private String dateName;
                     private String isHoliday;
@@ -54,11 +50,4 @@ public class OpenApiHolidayDao {
         }
     }
 }
-
-
-
-
-
-
-
 
