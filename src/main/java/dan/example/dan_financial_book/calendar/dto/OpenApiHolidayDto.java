@@ -1,6 +1,5 @@
 package dan.example.dan_financial_book.calendar.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +35,6 @@ public class OpenApiHolidayDto {
             @Getter
             @Setter
             public static class Items {
-                @JsonDeserialize(using = CustomListDeserializer.class)
                 private List<Item> item;
 
                 @Getter
