@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DataParsingUtils {
+public class DataUtils {
     // JSON 객체를 문자열로 변환하고 출력하는 메소드
     public static String convertObjectToJsonString(Object object) {
         // Jackson ObjectMapper 생성
@@ -34,5 +35,21 @@ public class DataParsingUtils {
         return list.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    // Map의 안전한 캐스팅
+    public static <T> HashMap<String, T> castMap(HashMap<String, Object> map, Class<T> clazz) {
+        HashMap<String, T> result = new HashMap<>();
+        for (HashMap.Entry<String, Object> entry : map.entrySet()) {
+            // 값의 타입 확인
+            if (clazz.isInstance(entry.getValue())) {
+                result.put(entry.getKey(), clazz.cast(entry.getValue()));
+            } else {
+                throw new ClassCastException("Cannot cast value of key '"
+                        + entry.getKey() + "' to "
+                        + clazz.getName());
+            }
+        }
+        return result;
     }
 }
