@@ -1,5 +1,7 @@
 package dan.example.dan_financial_book.calendar.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dan.example.dan_financial_book.calendar.dao.HolidayDao;
 import dan.example.dan_financial_book.calendar.dto.DateDto;
 import dan.example.dan_financial_book.calendar.dto.OpenApiHolidayDto;
@@ -9,18 +11,14 @@ import dan.example.dan_financial_book.calendar.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,107 +27,114 @@ public class CalendarService {
     private static final String JSON = "json";
     private final CalendarMapper calendarMapper;
     private final WebClient webClient;
-//    private final RestTemplate restTemplate;
+    //    private final RestTemplate restTemplate;
     @Value("${data.go.kr.openapi.holide.endpoint}")
     private String endpoint;
     @Value("${data.go.kr.openapi.servicekey.enc}")
     private String serviceKey;
 
     /**
-     * 오늘(이번 달)을 기준으로 1년치의 휴일 정보를 리턴한다.
+     * 오늘(이번 달)을 기준으로 1년치의 휴일 정보를 비동기로 조회한다.
      *
-     * @return List<OpenApiHolidayDao>
+     * @return Mono<OpenApiHolidayDto>
      */
-    private List<OpenApiHolidayDto> findHolidays() {
+    private List<Mono<OpenApiHolidayDto>> findHolidays() {
 
-        List<OpenApiHolidayDto> arr = new ArrayList<>();
+        List<Mono<OpenApiHolidayDto>> arr = new ArrayList<>();
         for (int i = -2; i < 12; i++) {
             DateDto date = DateUtils.toDateDtoInstance(DateUtils.getToday().plusMonths(i));
-            log.info("CalendarService findHolidays date =============> {}", date);
 
             String url = endpoint +
                     String.format("?solYear=%s", date.getYears()) +
                     String.format("&solMonth=%s", date.getMonth()) +
                     String.format("&ServiceKey=%s", serviceKey) +
                     String.format("&_type=%s", JSON);
-            log.info("CalendarService findHolidays url =============> {}", url);
 
-            Optional<OpenApiHolidayDto.Response.Body> responseBody = webClient.get()
-                    .uri(url)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .bodyToMono(OpenApiHolidayDto.Response.Body.class)
-                    .flux()
-                    .toStream()
-                    .findFirst();
+            try {
+                Mono<OpenApiHolidayDto> res = webClient.get()
+                        .uri(new URI(url))
+                        .retrieve()
+                        .bodyToMono(OpenApiHolidayDto.class);
 
-//            OpenApiHolidayDto res = restTemplate.getForObject(url, OpenApiHolidayDto.class);
+                arr.add(res);
+            } catch (Exception e) {
+                log.info("CalendarService findHolidays Error =============> {}", e.toString());
+            }
 
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add("Accept", "application/json"); // JSON 응답 요청
-//            HttpEntity<String> entity = new HttpEntity<>(headers);
-//
-//            log.info("CalendarService findHolidays res =============> {}", restTemplate.exchange(url, HttpMethod.GET, entity, OpenApiHolidayDto.class));
-
-            //arr.add(res);
         }
 
         return arr;
     }
 
     /**
-     * 공공 API를 통한 공휴일 조회 기능
-     * 특정 기간 동안의 공휴일 정보를 전부 가져온다.
+     * 비동기로 조회한 특일 정보를 구독하여 정상적인 정보만 리턴한다.
      *
-     * @param stdt YYYYMMDD
-     * @param eddt YYYYMMDD
-     * @return json
+     * @param monos List<Mono<OpenApiHolidayDto>>
+     * @return List<OpenApiHolidayDto>
      */
-    private OpenApiHolidayDto findHolidays(String stdt, String eddt) {
+    private void InsertDataSubscribingMonoList(List<Mono<OpenApiHolidayDto>> monos) {
+        // log.info("CalendarService InsertDataSubscribingMonoList Monos =============> {}", DataParsingUtils.convertObjectToJsonString(monos));
 
-        /**
-         * TODO 특정 기간의 개월 수 만큼 반복하여 각 월의 공휴일을 가져오고 총합을 리턴한다.
-         */
-        DateDto dateSpan = DateUtils.getTimeSpan(stdt, eddt);
-        log.info("TimeSpan =======> {}", dateSpan);
-
-        String year = "2024";
-        String month = "10";
-        String url = endpoint +
-                String.format("?solYear=%s", year) +
-                String.format("&solMonth=%s", month) +
-                String.format("&ServiceKey=%s", serviceKey) +
-                String.format("&_type=%s", JSON);
-
-        OpenApiHolidayDto res = null;
-//        webClient.get()
-//                .uri(url)
-//                .retrieve()
-//                .bodyToMono(OpenApiHolidayDto.class).block();
-
-        log.info("res : {}", res);
-        return res;
+        for (Mono<OpenApiHolidayDto> mono : monos) {
+            mono.subscribe(
+                    success -> {
+                        // 성공 시 처리
+                        //log.info("CalendarService InsertDataSubscribingMonoList subscribe sucess =============> {}", DataParsingUtils.convertObjectToJsonString(success));
+                        List<HolidayDao> daoList = convertHolidaysToDaoList(success);
+                        insertDaoList(daoList);
+                    },
+                    error -> {
+                        // 오류 시 처리
+                        log.info("CalendarService InsertDataSubscribingMonoList Error =============> {}", error.toString());
+                    }
+            );
+        }
     }
 
-    public int insertHolidays() {
-        List<OpenApiHolidayDto> holiDtoList = findHolidays();
-        List<HolidayDao> holiDaoList = new ArrayList<>();
+    /**
+     * 조회한 특일 정보를 DAO로 변환한다.
+     *
+     * @param dto 특일 정보
+     * @return dao list
+     */
+    private List<HolidayDao> convertHolidaysToDaoList(OpenApiHolidayDto dto) {
+        // LinkedHashMap 형태의 items 객체를 Json Serialize를 통해서 List로 바꾸는데,
+        // 바로 List 변수로 할당할 경우 ClassCastException가 발생함.
+        // ObjectMapper.convertValue()를 통해 깔끔하게 Casting을 진행하는 듯함.
+        ObjectMapper mapper = new ObjectMapper();
+        List<Item> holidays = mapper.convertValue(dto.getResponse().getBody().getItems().getItem(), new TypeReference<>() {
+        });
 
-        // 각 월의 공휴일 정보를 반복
-        for (OpenApiHolidayDto element : holiDtoList) {
-            List<Item> holidays = element.getResponse().getBody().getItems().getItem();
-
-            // 공휴일을 Dao List에 추가한다.
-            for (Item holiday : holidays) {
-                holiDaoList.add(HolidayDao.builder()
-                        .locDate(String.valueOf(holiday.getLocdate()))
-                        .dateName(holiday.getDateName())
-                        .holiYn(Objects.equals(holiday.getIsHoliday(), "Y"))
-                        .build());
-            }
+        List<HolidayDao> list = new ArrayList<>();
+        for (Item holiday : holidays) {
+            HolidayDao dao = HolidayDao.builder()
+                    .locDate(String.valueOf(holiday.getLocdate()))
+                    .dateName(holiday.getDateName())
+                    .holiYn(Objects.equals(holiday.getIsHoliday(), "Y"))
+                    .build();
+            list.add(dao);
         }
-        log.info("CalendarService insertHolidays holiDaoList =============> {}", holiDaoList);
 
-        return calendarMapper.insertHolidays(holiDaoList);
+        //log.info("CalendarService convertHolidaysToDaoList list =============> {}", DataParsingUtils.convertObjectToJsonString(list));
+        return list;
+    }
+
+    /**
+     * 특일 정보 DAO를 DB에 Insert한다.
+     *
+     * @param List<HolidayDao> HolidayDao
+     */
+    private void insertDaoList(List<HolidayDao> list) {
+        log.info("CalendarService insertDaoList Success =============> {}", list);
+
+        //calendarMapper.insertHolidays(list);
+    }
+
+    public void insertHolidays() {
+        // 특일 정보 조회
+        List<Mono<OpenApiHolidayDto>> holiDtoMonoList = findHolidays();
+
+        // 특일 정보 업데이트
+        InsertDataSubscribingMonoList(holiDtoMonoList);
     }
 }
