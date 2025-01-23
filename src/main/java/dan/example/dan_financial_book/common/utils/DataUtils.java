@@ -3,11 +3,15 @@ package dan.example.dan_financial_book.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DataUtils {
     // JSON 객체를 문자열로 변환하고 출력하는 메소드
     public static String convertObjectToJsonString(Object object) {
@@ -37,19 +41,32 @@ public class DataUtils {
                 .collect(Collectors.joining(", ", "[", "]"));
     }
 
-    // Map의 안전한 캐스팅
-    public static <T> HashMap<String, T> castMap(HashMap<String, Object> map, Class<T> clazz) {
-        HashMap<String, T> result = new HashMap<>();
-        for (HashMap.Entry<String, Object> entry : map.entrySet()) {
-            // 값의 타입 확인
-            if (clazz.isInstance(entry.getValue())) {
-                result.put(entry.getKey(), clazz.cast(entry.getValue()));
-            } else {
-                throw new ClassCastException("Cannot cast value of key '"
-                        + entry.getKey() + "' to "
-                        + clazz.getName());
+    // 안전하게 Object를 Map<String, Object>로 캐스팅
+    @SuppressWarnings("unchecked")
+    public static HashMap<String, Object> safeCastToMap(Object obj) {
+        if (obj instanceof HashMap) {
+            // 키가 String인지, 값이 Object인지 확인
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {
+                if (!(entry.getKey() instanceof String)) {
+                    log.info("DataUtils safeCastToMap Error Not A String =============> {}", entry.getKey());
+                    throw new ClassCastException("키가 String이 아닙니다: " + entry.getKey());
+                }
+                // 값이 Object인지 확인할 필요 없음 (모든 것이 Object)
             }
+            return (HashMap<String, Object>) obj; // 안전한 캐스팅
+        } else {
+            log.info("DataUtils safeCastToMap Error Not A Map =============> {}", "객체가 Map이 아닙니다.");
+            throw new ClassCastException("객체가 Map이 아닙니다.");
         }
-        return result;
+    }
+
+    // 안전하게 Object를 ArrayList<Object>로 캐스팅
+    @SuppressWarnings("unchecked")
+    public static ArrayList<HashMap<String, Object>> safeCastToArrayList(Object obj) {
+        if (obj instanceof ArrayList) {
+            return (ArrayList<HashMap<String, Object>>) new ArrayList<>((ArrayList<?>) obj);
+        } else {
+            throw new ClassCastException("객체가 ArrayList가 아닙니다.");
+        }
     }
 }

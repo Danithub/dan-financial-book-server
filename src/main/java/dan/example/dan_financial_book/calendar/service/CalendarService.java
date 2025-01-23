@@ -5,6 +5,7 @@ import dan.example.dan_financial_book.calendar.dao.HolidayDao;
 import dan.example.dan_financial_book.calendar.dto.DateDto;
 import dan.example.dan_financial_book.calendar.mapper.CalendarMapper;
 import dan.example.dan_financial_book.calendar.utils.DateUtils;
+import dan.example.dan_financial_book.common.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,8 +103,8 @@ public class CalendarService {
      */
     private List<HolidayDao> createHolidayDaoList(HashMap<String, Object> holidayMap) {
         // Items에 대한 분기처리 ("", {}, List)
-        Map<String, Object> response = (Map<String, Object>) holidayMap.get("response");
-        Map<String, Object> body = (Map<String, Object>) response.get("body");
+        HashMap<String, Object> response = DataUtils.safeCastToMap(holidayMap.get("response"));
+        HashMap<String, Object> body = DataUtils.safeCastToMap(response.get("body"));
 
         int totalCount = (int) body.get("totalCount");
 
@@ -114,8 +115,8 @@ public class CalendarService {
         }
         if (totalCount == 1) {
             // 공휴일 하루인 경우 객체 형태의 items가 들어옴.
-            HashMap<String, Object> items = (HashMap<String, Object>) body.get("items");
-            HashMap<String, Object> item = (HashMap<String, Object>) items.get("item");
+            HashMap<String, Object> items = DataUtils.safeCastToMap(body.get("items"));
+            HashMap<String, Object> item = DataUtils.safeCastToMap(items.get("item"));
 
             HolidayDao dao = HolidayDao.builder()
                     .locDate(String.valueOf(item.get("locdate")))
@@ -126,8 +127,8 @@ public class CalendarService {
         }
         if (totalCount > 1) {
             // 공휴일 둘 이상인 경우 List<객체> 형태의 items가 들어옴.
-            HashMap<String, Object> items = (HashMap<String, Object>) body.get("items");
-            ArrayList<HashMap<String, Object>> item = (ArrayList<HashMap<String, Object>>) items.get("item");
+            HashMap<String, Object> items = DataUtils.safeCastToMap(body.get("items"));
+            ArrayList<HashMap<String, Object>> item = DataUtils.safeCastToArrayList(items.get("item"));
             for (HashMap<String, Object> itemMap : item) {
                 HolidayDao dao = HolidayDao.builder()
                         .locDate(String.valueOf(itemMap.get("locdate")))
