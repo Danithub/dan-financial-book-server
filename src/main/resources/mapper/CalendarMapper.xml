@@ -2,18 +2,16 @@
 <!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="dan.example.dan_financial_book.calendar.mapper.CalendarMapper">
 
-    <parameterMap id="HolidayParam" type="dan.example.dan_financial_book.calendar.dao.HolidayDao" />
-
     <insert id="insertHolidays" parameterType="java.util.List">
-        <foreach collection="list" item="holidayDao"  open="" close="" separator=";">
+        <foreach collection="list" item="holidayDao" separator=";">
             INSERT INTO t_holiday
                 (loc_date, date_name, holi_yn, crt_time, upt_time)
             VALUES
-                (#{holidayDao.locDate}, #{holidayDao.dateName}, #{holidayDao.HoliYn}, now(), now())
-            ON CONFLICT ON CONSTRAINT loc_date
+                (#{holidayDao.locDate}, #{holidayDao.dateName}, #{holidayDao.holiYn}, now(), now())
+            ON CONFLICT ON CONSTRAINT t_holiday_unique
             DO UPDATE
                   SET date_name = #{holidayDao.dateName},
-                      holi_yn = #{holidayDao.HoliYn},
+                      holi_yn = #{holidayDao.holiYn},
                       upt_time = now()
         </foreach>
     </insert>
