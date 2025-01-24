@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="dan.example.dan_financial_book.calendar.mapper.CalendarMapper">
+    <parameterMap id="findCalendarParam" type="dan.example.dan_financial_book.calendar.dto.CalendarReqDto" />
+
+    <resultMap type="dan.example.dan_financial_book.calendar.dto.CalendarDto" id="findCalendarResult" >
+        <result column="date" property="date"/>
+        <result column="holi_yn" property="holiYn"/>
+        <result column="holi_name" property="holiName"/>
+        <result column="expense" property="expense"/>
+        <result column="income" property="income"/>
+        <result column="transfer" property="transfer"/>
+    </resultMap>
 
     <insert id="insertHolidays" parameterType="java.util.List">
         <foreach collection="list" item="holidayDao" separator=";">
@@ -15,5 +25,32 @@
                       upt_time = now()
         </foreach>
     </insert>
+
+    <select id="findCalendarByMonth" parameterMap="findCalendarParam" resultMap="findCalendarResult">
+
+        WITH SumPerType AS (
+            SELECT tr_date, tr_type, sum(amount) AS amount
+              FROM t_transaction
+             WHERE 1=1
+               AND tr_date BETWEEN to_date(#{stdt},'YYYYMMDD') AND to_date(#{eddt}, 'YYYYMMDD')
+             GROUP BY tr_date, tr_type
+             ORDER BY tr_date, tr_type
+        ),
+        Holiday AS (
+            SELECT loc_date, date_name, holi_yn
+              FROM t_holiday th
+             WHERE 1=1
+               AND loc_date BETWEEN #{stdt} AND #{eddt}
+        )
+        SELECT to_char(s.tr_date, 'YYYY-MM-DD') AS date
+               , COALESCE((SELECT holi_yn FROM Holiday WHERE loc_date = to_char(s.tr_date, 'YYYYMMDD')), FALSE) AS holi_yn
+               , COALESCE((SELECT date_name FROM Holiday WHERE loc_date = to_char(s.tr_date, 'YYYYMMDD')), '') AS holi_name
+               , COALESCE(max(CASE WHEN s.tr_type='0' THEN amount END), 0) AS expense
+               , COALESCE(max(CASE WHEN s.tr_type='1' THEN amount END), 0) AS income
+               , COALESCE(max(CASE WHEN s.tr_type='2' THEN amount END), 0) AS transfer
+          FROM SumPerType AS s
+         GROUP BY tr_date;
+
+    </select>
 
 </mapper>

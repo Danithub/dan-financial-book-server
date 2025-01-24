@@ -2,6 +2,8 @@ package dan.example.dan_financial_book.calendar.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dan.example.dan_financial_book.calendar.dao.HolidayDao;
+import dan.example.dan_financial_book.calendar.dto.CalendarDto;
+import dan.example.dan_financial_book.calendar.dto.CalendarReqDto;
 import dan.example.dan_financial_book.calendar.dto.DateDto;
 import dan.example.dan_financial_book.calendar.mapper.CalendarMapper;
 import dan.example.dan_financial_book.calendar.utils.DateUtils;
@@ -176,5 +178,14 @@ public class CalendarService {
 
         // 특일 정보 업데이트
         InsertDataSubscribingMonoList(holiDtoMonoList);
+    }
+
+    /**
+     * 월별 이용금액과 휴일정보를 함께 조회한다.
+     *
+     * @return calendarDto
+     */
+    public List<CalendarDto> findCalendarByMonth(CalendarReqDto request) {
+        return calendarMapper.findCalendarByMonth(request);
     }
 }

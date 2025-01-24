@@ -1,14 +1,16 @@
 package dan.example.dan_financial_book.calendar.controller;
 
+import dan.example.dan_financial_book.calendar.dto.CalendarDto;
+import dan.example.dan_financial_book.calendar.dto.CalendarReqDto;
 import dan.example.dan_financial_book.calendar.service.CalendarService;
 import dan.example.dan_financial_book.common.ResponseEntity;
 import dan.example.dan_financial_book.common.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "/cal")
@@ -22,8 +24,16 @@ public class CalendarController {
     @PutMapping("refresh")
     @ResponseBody
     public ResponseEntity<String> refresh(){
-        log.debug("CalendarController refresh =============> Start");
+        log.info("CalendarController refresh =============> Start");
         calendarService.insertHolidays();
         return responseService.toResponseEntity("200", "Success");
+    }
+
+    @PostMapping("find")
+    @ResponseBody
+    public ResponseEntity<List<CalendarDto>> findCalendarByMonth(@RequestBody CalendarReqDto request){
+        log.info("CalendarController find =============> Start");
+        List<CalendarDto> res = calendarService.findCalendarByMonth(request);
+        return responseService.toResponseEntity("200", res);
     }
 }
