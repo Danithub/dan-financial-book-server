@@ -28,29 +28,28 @@
 
     <select id="findCalendarByMonth" parameterMap="findCalendarParam" resultMap="findCalendarResult">
 
-        WITH SumPerType AS (
-            SELECT tr_date, tr_type, sum(amount) AS amount
-              FROM t_transaction
+        WITH RawData AS (
+            SELECT COALESCE(tt.tr_date, to_date(th.loc_date, 'YYYYMMDD')) AS date
+                   , COALESCE(tt.tr_type, '') AS type
+                   , COALESCE(tt.amount, 0) AS amount
+                   , COALESCE(th.holi_yn, FALSE) AS holi_yn
+                   , COALESCE(th.date_name, '') AS holi_name
+              FROM t_transaction tt
+              FULL OUTER JOIN t_holiday th
+                ON tt.tr_date = to_date(th.loc_date, 'YYYYMMDD')
              WHERE 1=1
-               AND tr_date BETWEEN to_date(#{stdt},'YYYYMMDD') AND to_date(#{eddt}, 'YYYYMMDD')
-             GROUP BY tr_date, tr_type
-             ORDER BY tr_date, tr_type
-        ),
-        Holiday AS (
-            SELECT loc_date, date_name, holi_yn
-              FROM t_holiday th
-             WHERE 1=1
-               AND loc_date BETWEEN #{stdt} AND #{eddt}
+               AND (tt.tr_date BETWEEN to_date(#{stdt},'YYYYMMDD') AND to_date(#{eddt}, 'YYYYMMDD')
+                OR th.loc_date BETWEEN #{stdt} AND #{eddt})
         )
-        SELECT to_char(s.tr_date, 'YYYY-MM-DD') AS date
-               , COALESCE((SELECT holi_yn FROM Holiday WHERE loc_date = to_char(s.tr_date, 'YYYYMMDD')), FALSE) AS holi_yn
-               , COALESCE((SELECT date_name FROM Holiday WHERE loc_date = to_char(s.tr_date, 'YYYYMMDD')), '') AS holi_name
-               , COALESCE(max(CASE WHEN s.tr_type='0' THEN amount END), 0) AS expense
-               , COALESCE(max(CASE WHEN s.tr_type='1' THEN amount END), 0) AS income
-               , COALESCE(max(CASE WHEN s.tr_type='2' THEN amount END), 0) AS transfer
-          FROM SumPerType AS s
-         GROUP BY tr_date;
-
+        SELECT rd.date
+               , bool_or(rd.holi_yn) AS holi_yn
+               , MAX(rd.holi_name) AS holi_name
+               , COALESCE(max(CASE WHEN rd.type='0' THEN amount END), 0) AS expense
+               , COALESCE(max(CASE WHEN rd.type='1' THEN amount END), 0) AS income
+               , COALESCE(max(CASE WHEN rd.type='2' THEN amount END), 0) AS transfer
+          FROM RawData AS rd
+         GROUP BY date
+         ORDER BY date;
     </select>
 
 </mapper>
